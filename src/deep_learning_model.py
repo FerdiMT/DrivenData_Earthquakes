@@ -7,8 +7,6 @@ from keras.layers.normalization import BatchNormalization
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
 
-#TODO: THE HIGHEST SCORE WAS WITHOUT BATCH NORMALIZER, WITH ALL NON-CATEGORIAL FEATURES (INPUT SHAPE 30 AND WITHOUT THE SECOND LAYER, AND BATCH SIZE 128).
-
 directory='data/'
 
 # Load the data
@@ -21,6 +19,10 @@ features.set_index('building_id', inplace=True)
 # Data wrangling: FEATURES
 # Remove variables that might not be useful
 features.drop(['plan_configuration', 'position'], axis=1, inplace=True)
+
+features = pd.get_dummies(features,
+                          columns=["geo_level_1_id"],
+                          prefix=["geo_level_1"])
 
 # Select only numerical features
 num_features = features.select_dtypes(include=np.number)
@@ -41,7 +43,9 @@ X_train, X_test, y_train, y_test = train_test_split(num_features, labels, test_s
 
 # DEEP LEARNING MODEL ---
 model = Sequential()
-model.add(Dense(30, activation= 'relu', input_shape=(30,)))
+model.add(Dense(60, activation= 'relu', input_shape=(60,)))
+model.add(BatchNormalization())
+model.add(Dense(30, activation='relu'))
 model.add(BatchNormalization())
 model.add(Dense(10, activation='relu'))
 model.add(Dense(3, activation= 'softmax'))
@@ -64,6 +68,11 @@ test_values.set_index('building_id', inplace=True)
 # Data wrangling: FEATURES
 # Remove variables that might not be useful
 test_values.drop(['plan_configuration', 'position'], axis=1, inplace=True)
+
+test_values = pd.get_dummies(test_values,
+                             columns=["geo_level_1_id"],
+                             prefix=["geo_level_1"])
+
 # Select only numerical values
 num_features_test = test_values.select_dtypes(include=np.number)
 # Convert to array
