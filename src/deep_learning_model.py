@@ -20,11 +20,7 @@ features.set_index('building_id', inplace=True)
 
 # Data wrangling: FEATURES
 # Remove variables that might not be useful
-features.drop(['geo_level_1_id', 'geo_level_2_id', 'geo_level_3_id', 'plan_configuration', 'position'], axis=1, inplace=True)  # TODO: Here maybe geo level 1 is useful as categorical one hot encoded
-# One hot encoding the most interesting categorical variables:
-features = pd.get_dummies(features,
-                          columns=["land_surface_condition", "foundation_type", "roof_type", "ground_floor_type", "other_floor_type", "legal_ownership_status"],
-                          prefix=["land_surface", "foundation", "roof", "ground_floor", "other_floor", "legal_ownership"])
+features.drop(['plan_configuration', 'position'], axis=1, inplace=True)
 
 # Select only numerical features
 num_features = features.select_dtypes(include=np.number)
@@ -45,11 +41,7 @@ X_train, X_test, y_train, y_test = train_test_split(num_features, labels, test_s
 
 # DEEP LEARNING MODEL ---
 model = Sequential()
-model.add(Dense(51, activation= 'relu', input_shape=(51,)))
-model.add(BatchNormalization())
-model.add(Dense(51, activation= 'relu'))
-model.add(BatchNormalization())
-model.add(Dense(30, activation= 'relu'))
+model.add(Dense(30, activation= 'relu', input_shape=(30,)))
 model.add(BatchNormalization())
 model.add(Dense(10, activation='relu'))
 model.add(Dense(3, activation= 'softmax'))
@@ -60,7 +52,7 @@ model.compile(optimizer='adam',
 
 model.summary()
 
-model.fit(X_train, y_train, epochs=10, batch_size = 256, verbose=2, validation_data=(X_test, y_test))
+model.fit(X_train, y_train, epochs=10, batch_size = 128, verbose=2, validation_data=(X_test, y_test))
 
 
 # PREDICTIONS
@@ -69,14 +61,9 @@ model.fit(X_train, y_train, epochs=10, batch_size = 256, verbose=2, validation_d
 test_values = pd.read_csv(directory + 'test_values.csv')
 test_values.set_index('building_id', inplace=True)
 
-
 # Data wrangling: FEATURES
 # Remove variables that might not be useful
-test_values.drop(['geo_level_1_id', 'geo_level_2_id', 'geo_level_3_id', 'plan_configuration', 'position'], axis=1, inplace=True)  # TODO: Here maybe geo level 1 is useful as categorical one hot encoded
-# One hot encoding the most interesting categorical variables:
-test_values = pd.get_dummies(test_values,
-                             columns=["land_surface_condition", "foundation_type", "roof_type", "ground_floor_type", "other_floor_type", "legal_ownership_status"],
-                             prefix=["land_surface", "foundation", "roof", "ground_floor", "other_floor", "legal_ownership"])
+test_values.drop(['plan_configuration', 'position'], axis=1, inplace=True)
 # Select only numerical values
 num_features_test = test_values.select_dtypes(include=np.number)
 # Convert to array
