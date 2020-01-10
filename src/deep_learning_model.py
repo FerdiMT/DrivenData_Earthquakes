@@ -6,6 +6,8 @@ from keras.layers import Dense, Dropout
 from keras.layers.normalization import BatchNormalization
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
+from imblearn.over_sampling import SMOTE
+from imblearn.under_sampling import RandomUnderSampler
 
 directory='data/'
 
@@ -26,11 +28,40 @@ features = pd.get_dummies(features,
 
 # Select only numerical features
 num_features = features.select_dtypes(include=np.number)
+
+# Undersampling largest class and oversampling smallest class to the middle class value.
+# Undersampling the largest class (damage_grade=2)
+undersampling_dictionary = {
+    1:25124,
+    2:87218,
+    3:87218
+}
+rus = RandomUnderSampler(random_state=33, sampling_strategy=undersampling_dictionary)
+
+num_features, labels = rus.fit_resample(num_features, labels)
+num_features = pd.DataFrame(num_features)
+labels = pd.DataFrame(labels)
+print('Values undersampled')
+
+# Oversampling the smallest class (damage_grade=1)
+oversampling_dictionary = {
+    1: 87218,
+    2: 87218,
+    3: 87218
+}
+
+sm = SMOTE(random_state=33, sampling_strategy=oversampling_dictionary)
+num_features, labels = sm.fit_resample(num_features, labels)
+num_features = pd.DataFrame(num_features)
+labels = pd.DataFrame(labels)
+print('Values oversampled')
 # Switch to array
 num_features = num_features.values
 # Scale features
 num_features = MinMaxScaler().fit_transform(num_features)
 
+# Rename labels column back to damage_grade
+labels.columns = ['damage_grade']
 # Reformat the labels so it goes from 0 to 2 instead than 1-3
 labels['damage_grade'] = labels['damage_grade'] - 1
 # One hot encoding of labels plus convert to array.
