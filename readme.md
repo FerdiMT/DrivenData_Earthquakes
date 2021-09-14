@@ -1,8 +1,13 @@
+### DRIVENDATA EARTHQUAKES CHALLENGE
+https://www.drivendata.org/competitions/57/nepal-earthquake/
+
+Short and quick models to improve prediction of earthquake damage.
+
+
+
+
+
 ### MODELS CHANGELOG
-
-
-
-
 
 | ID   | MODEL                                       | SCORE  | COMMIT                 |
 | ---- | ------------------------------------------- | ------ | ---------------------- |
